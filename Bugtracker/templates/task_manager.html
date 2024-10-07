@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Your Task Management</title>
+<style>
+    body {
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        background-color: #e3f2fd;
+        color: #343a40;
+        padding: 20px;
+        margin: 0;
+    }
+
+    h1, h2 {
+        text-align: center;
+        color: #1e88e5;
+        margin-bottom: 20px;
+    }
+
+    .logout-link {
+        display: inline-block;
+        padding: 12px 20px;
+        background-color: #1e88e5;
+        color: white;
+        border-radius: 5px;
+        text-decoration: none;
+        font-size: 16px;
+        font-weight: bold;
+        transition: background-color 0.3s, transform 0.2s;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+        margin-bottom: 20px;
+    }
+
+    .logout-link:hover {
+        background-color: #1565c0;
+        transform: scale(1.05);
+    }
+
+    .logout-link:active {
+        background-color: #0d47a1;
+        transform: scale(1);
+    }
+
+    .task-container {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 20px;
+    }
+
+    .task-column {
+        width: 15%;
+        background-color: #ffffff;
+        border: 1px solid #90caf9;
+        border-radius: 8px;
+        padding: 10px;
+        min-height: 400px;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+        overflow: auto;
+        transition: transform 0.2s;
+    }
+
+    .task-column:hover {
+        transform: scale(1.02);
+    }
+
+    .task {
+        margin: 15px 0;
+        padding: 10px;
+        border: 1px solid #90caf9;
+        border-radius: 8px;
+        background-color: #ffffff;
+        position: relative;
+        cursor: pointer;
+        transition: background-color 0.3s, box-shadow 0.3s;
+    }
+
+    .task:hover {
+        background-color: #e9ecef; /* Light gray on hover */
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Add shadow on hover */
+    }
+
+    /* Priority styling */
+    .priority {
+        padding: 4px 6px;
+        border-radius: 12px;
+        color: #fff;
+        font-weight: bold;
+        font-size: 0.7em; 
+        min-width: 70px; 
+        margin-top: 5px; /* Added margin for spacing */
+    }
+
+    .critical { background-color: #dc3545; } /* Red */
+    .high { background-color: #fd7e14; } /* Orange */
+    .medium { background-color: #ffc107; color: black; } /* Yellow */
+    .low { background-color: #28a745; } /* Green */
+
+    /* Details Section */
+    .task-details {
+        display: none;
+        margin-top: 10px;
+        padding: 10px;
+        border-top: 1px solid #90caf9; /* Light blue border */
+        background-color: #f9f9f9; /* Light gray */
+        font-size: 0.9em;
+        border-radius: 4px; /* Rounded corners */
+    }
+
+    /* Show details on hover */
+    .task:hover .task-details {
+        display: block;
+    }
+
+    button {
+        margin-top: 10px; /* Added margin to space out buttons */
+        padding: 10px 15px; /* Adjusted padding for buttons */
+        background-color: #1e88e5; /* Button background color */
+        color: white; /* Button text color */
+        border: none; /* No border */
+        border-radius: 5px; /* Rounded corners for buttons */
+        cursor: pointer; /* Pointer cursor on hover */
+        transition: background-color 0.3s, transform 0.2s; /* Smooth transition */
+    }
+
+    button:hover {
+        background-color: #1565c0; /* Darker blue on hover */
+        transform: scale(1.05); /* Slightly enlarge on hover */
+    }
+
+    button:active {
+        background-color: #0d47a1; /* Even darker on click */
+        transform: scale(1); /* Return to normal size */
+    }
+</style>
+
+</head>
+<body>
+    <h1 style="text-align: center;">Task Management</h1>
+    <a href="/logout" class="logout-link">Logout</a>
+    <div class="task-container">
+        <div class="task-column">
+            <h2>To Do</h2>
+            {% for task in tasks %}
+                {% if task.status == 'To Do' %}
+                    <div class="task" id="task{{ task.number }}">
+                        <strong>{{ task.title }}</strong><br>
+                        <span>{{ task.description }}</span><br>
+                        <span class="priority {{ task.priority }}">{{ task.priority.capitalize() }}</span><br>
+                        <div class="task-details">
+                            <strong>Type:</strong> {{ task.type }}<br>
+                            <strong>Creator:</strong> {{ task.creator }}<br>
+                            <strong>Performer:</strong> {{ task.performer if task.performer else 'Not Assigned' }}<br>
+                            <strong>Created At:</strong> {{ task.created_at }}<br>
+                            <strong>Last Updated:</strong> {{ task.updated_at }}<br>
+                        </div>
+                        <form action="/update_task/{{ task.number }}" method="post" style="display:inline;">
+                            <input type="hidden" name="new_status" value="In Progress">
+                            <button type="submit">Move to In Progress</button>
+                        </form>                        
+                        <form action="/update_task/{{ task.number }}" method="post" style="display:inline;">
+                            <input type="hidden" name="new_status" value="Wontfix">
+                            <button type="submit">Won't Fix</button>
+                        </form>
+                    </div>
+                {% endif %}
+            {% endfor %}
+        </div>
+
+        <div class="task-column">
+            <h2>In Progress</h2>
+            {% for task in tasks %}
+                {% if task.status == 'In Progress' %}
+                    <div class="task" id="task{{ task.number }}">
+                        <strong>{{ task.title }}</strong><br>
+                        <span>{{ task.description }}</span><br>
+                        <span class="priority {{ task.priority }}">{{ task.priority.capitalize() }}</span><br>
+                        <div class="task-details">
+                            <strong>Type:</strong> {{ task.type }}<br>
+                            <strong>Creator:</strong> {{ task.creator }}<br>
+                            <strong>Performer:</strong> {{ task.performer if task.performer else 'Not Assigned' }}<br>
+                            <strong>Created At:</strong> {{ task.created_at }}<br>
+                            <strong>Last Updated:</strong> {{ task.updated_at }}<br>
+                        </div>
+                        <form action="/update_task/{{ task.number }}" method="post" style="display:inline;">
+                            <input type="hidden" name="new_status" value="Code Review">
+                            <button type="submit">Move to Code Review</button>
+                        </form>
+                        <form action="/update_task/{{ task.number }}" method="post" style="display:inline;">
+                            <input type="hidden" name="new_status" value="Wontfix">
+                            <button type="submit">Won't Fix</button>
+                        </form>
+                    </div>
+                {% endif %}
+            {% endfor %}
+        </div>
+
+        <div class="task-column">
+            <h2>Code Review</h2>
+            {% for task in tasks %}
+                {% if task.status == 'Code Review' %}
+                    <div class="task" id="task{{ task.number }}">
+                        <strong>{{ task.title }}</strong><br>
+                        <span>{{ task.description }}</span><br>
+                        <span class="priority {{ task.priority }}">{{ task.priority.capitalize() }}</span><br>
+                        <div class="task-details">
+                            <strong>Type:</strong> {{ task.type }}<br>
+                            <strong>Creator:</strong> {{ task.creator }}<br>
+                            <strong>Performer:</strong> {{ task.performer if task.performer else 'Not Assigned' }}<br>
+                            <strong>Created At:</strong> {{ task.created_at }}<br>
+                            <strong>Last Updated:</strong> {{ task.updated_at }}<br>
+                        </div>
+                        <form action="/update_task/{{ task.number }}" method="post" style="display:inline;">
+                            <input type="hidden" name="new_status" value="Dev Test">
+                            <button type="submit">Move to Dev Test</button>
+                        </form>
+                        <form action="/update_task/{{ task.number }}" method="post" style="display:inline;">
+                            <input type="hidden" name="new_status" value="Wontfix">
+                            <button type="submit">Won't Fix</button>
+                        </form>
+                    </div>
+                {% endif %}
+            {% endfor %}
+        </div>
+
+        <div class="task-column">
+            <h2>Dev Test</h2>
+            {% for task in tasks %}
+                {% if task.status == 'Dev Test' %}
+                    <div class="task" id="task{{ task.number }}">
+                        <strong>{{ task.title }}</strong><br>
+                        <span>{{ task.description }}</span><br>
+                        <span class="priority {{ task.priority }}">{{ task.priority.capitalize() }}</span><br>
+                        <div class="task-details">
+                            <strong>Type:</strong> {{ task.type }}<br>
+                            <strong>Creator:</strong> {{ task.creator }}<br>
+                            <strong>Performer:</strong> {{ task.performer if task.performer else 'Not Assigned' }}<br>
+                            <strong>Created At:</strong> {{ task.created_at }}<br>
+                            <strong>Last Updated:</strong> {{ task.updated_at }}<br>
+                        </div>
+                        <form action="/update_task/{{ task.number }}" method="post" style="display:inline;">
+                            <input type="hidden" name="new_status" value="Testing">
+                            <button type="submit">Move to Testing</button>
+                        </form>
+                        <form action="/update_task/{{ task.number }}" method="post" style="display:inline;">
+                            <input type="hidden" name="new_status" value="Wontfix">
+                            <button type="submit">Won't Fix</button>
+                        </form>
+                    </div>
+                {% endif %}
+            {% endfor %}
+        </div>
+
+        <div class="task-column">
+            <h2>Testing</h2>
+            {% for task in tasks %}
+                {% if task.status == 'Testing' %}
+                    <div class="task" id="task{{ task.number }}">
+                        <strong>{{ task.title }}</strong><br>
+                        <span>{{ task.description }}</span><br>
+                        <span class="priority {{ task.priority }}">{{ task.priority.capitalize() }}</span><br>
+                        <div class="task-details">
+                            <strong>Type:</strong> {{ task.type }}<br>
+                            <strong>Creator:</strong> {{ task.creator }}<br>
+                            <strong>Performer:</strong> {{ task.performer if task.performer else 'Not Assigned' }}<br>
+                            <strong>Created At:</strong> {{ task.created_at }}<br>
+                            <strong>Last Updated:</strong> {{ task.updated_at }}<br>
+                        </div>
+                        <form action="/update_task/{{ task.number }}" method="post" style="display:inline;">
+                            <input type="hidden" name="new_status" value="Done">
+                            <button type="submit">Move to Done</button>
+                        </form>
+                        <form action="/update_task/{{ task.number }}" method="post" style="display:inline;">
+                            <input type="hidden" name="new_status" value="Wontfix">
+                            <button type="submit">Won't Fix</button>
+                        </form>
+                    </div>
+                {% endif %}
+            {% endfor %}
+        </div>
+
+        <div class="task-column">
+            <h2>Done</h2>
+            {% for task in tasks %}
+                {% if task.status == 'Done' %}
+                    <div class="task" id="task{{ task.number }}">
+                        <strong>{{ task.title }}</strong><br>
+                        <span>{{ task.description }}</span><br>
+                        <span class="priority {{ task.priority }}">{{ task.priority.capitalize() }}</span><br>
+                        <div class="task-details">
+                            <strong>Type:</strong> {{ task.type }}<br>
+                            <strong>Creator:</strong> {{ task.creator }}<br>
+                            <strong>Performer:</strong> {{ task.performer if task.performer else 'Not Assigned' }}<br>
+                            <strong>Created At:</strong> {{ task.created_at }}<br>
+                            <strong>Last Updated:</strong> {{ task.updated_at }}<br>
+                        </div>
+                    </div>
+                {% endif %}
+            {% endfor %}
+        </div>
+
+        <div class="task-column">
+            <h2>Won't Fix</h2>
+            {% for task in tasks %}
+                {% if task.status == 'Wontfix' %}
+                    <div class="task" id="task{{ task.number }}">
+                        <strong>{{ task.title }}</strong><br>
+                        <span>{{ task.description }}</span><br>
+                        <span class="priority {{ task.priority }}">{{ task.priority.capitalize() }}</span><br>
+                        <div class="task-details">
+                            <strong>Type:</strong> {{ task.type }}<br>
+                            <strong>Creator:</strong> {{ task.creator }}<br>
+                            <strong>Performer:</strong> {{ task.performer if task.performer else 'Not Assigned' }}<br>
+                            <strong>Created At:</strong> {{ task.created_at }}<br>
+                            <strong>Last Updated:</strong> {{ task.updated_at }}<br>
+                        </div>
+                    </div>
+                {% endif %}
+            {% endfor %}
+        </div>
+    </div>
+
+    <form action="/create_task" method="post" style="margin-top: 20px; max-width: 600px; margin: 20px auto; background-color: #ffffff; padding: 20px; border-radius: 8px; box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1); font-family: Arial, sans-serif;">
+        <h3 style="text-align: center; color: #1e88e5; margin-bottom: 20px;">Create a New Task</h3>
+        
+        <input type="text" name="title" placeholder="Title*" required style="width: 100%; padding: 12px; margin-bottom: 15px; border: 1px solid #90caf9; border-radius: 4px; transition: border-color 0.3s; box-sizing: border-box;">
+        
+        <textarea name="description" placeholder="Description" style="width: 100%; padding: 12px; margin-bottom: 15px; border: 1px solid #90caf9; border-radius: 4px; transition: border-color 0.3s; box-sizing: border-box; font-family: Arial, sans-serif;"></textarea>
+        
+        <select name="type" required style="width: 100%; padding: 12px; margin-bottom: 15px; border: 1px solid #90caf9; border-radius: 4px; transition: border-color 0.3s; box-sizing: border-box;">
+            <option value="bug">Bug</option>
+            <option value="task">Task</option>
+        </select>
+        
+        <select name="priority" required style="width: 100%; padding: 12px; margin-bottom: 15px; border: 1px solid #90caf9; border-radius: 4px; transition: border-color 0.3s; box-sizing: border-box;">
+            <option value="critical">Critical</option>
+            <option value="high">High</option>
+            <option value="medium">Medium</option>
+            <option value="low">Low</option>
+        </select>
+        
+        <input type="text" name="creator" placeholder="Creator*" required style="width: 100%; padding: 12px; margin-bottom: 15px; border: 1px solid #90caf9; border-radius: 4px; transition: border-color 0.3s; box-sizing: border-box;">
+        
+        <input type="text" name="performer" placeholder="Performer" style="width: 100%; padding: 12px; margin-bottom: 15px; border: 1px solid #90caf9; border-radius: 4px; transition: border-color 0.3s; box-sizing: border-box;"> <!-- Performer input -->
+        
+        <button type="submit" style="width: 100%; padding: 12px; background-color: #1e88e5; color: white; border: none; border-radius: 5px; cursor: pointer; transition: background-color 0.3s; font-size: 16px; font-weight: bold;">
+            Create Task
+        </button>
+    </form>
+    
+</body>
+</html>
+

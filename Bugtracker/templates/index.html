@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login and Registration</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #e3f2fd; /* Light blue background */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+    
+        .container {
+            background-color: #ffffff; /* White background for the form */
+            border-radius: 8px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            width: 300px;
+            padding: 20px;
+        }
+    
+        .form-container {
+            display: flex;
+            flex-direction: column;
+        }
+    
+        .form {
+            display: none;
+        }
+    
+        .form.active {
+            display: block;
+        }
+    
+        h2 {
+            margin-bottom: 20px;
+            text-align: center;
+            color: #1e88e5; /* Blue header color */
+        }
+    
+        input {
+            width: 100%;
+            padding: 12px; /* Increased padding for better touch area */
+            margin: 10px 0;
+            border: 1px solid #90caf9; /* Light blue border */
+            border-radius: 4px;
+            font-size: 16px; /* Increased font size for input */
+            box-sizing: border-box; /* Ensures padding is included in total width */
+        }
+    
+        button {
+            width: 100%;
+            padding: 12px; /* Consistent padding for buttons */
+            background-color: #1e88e5; /* Blue button */
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px; /* Increased font size for button */
+            transition: background-color 0.3s, transform 0.2s; /* Transition for button */
+        }
+    
+        button:hover {
+            background-color: #1565c0; /* Darker blue on hover */
+            transform: translateY(-1px); /* Slightly lift button on hover */
+        }
+    
+        p {
+            text-align: center;
+        }
+    
+        a {
+            color: #1e88e5; /* Blue link color */
+            text-decoration: none;
+            font-weight: bold; /* Bold links */
+        }
+    
+        a:hover {
+            text-decoration: underline; /* Underline on hover */
+        }
+    </style>
+    
+</head>
+<body>
+    <div class="container">
+        <div class="form-container">
+            <div class="form" id="login-form">
+                <h2>Login</h2>
+                <form action="/login" method="POST">
+                    <input type="text" placeholder="Username" name="username" required>
+                    <input type="password" placeholder="Password" name="password" required>
+                    <button type="submit">Login</button>
+                    <p>Don't have an account? <a href="#" id="show-register">Register</a></p>
+                </form>
+            </div>
+            <div class="form" id="register-form">
+                <h2>Register</h2>
+                <form action="/register" method="POST">
+                    <input type="text" placeholder="Username" name="username" required>
+                    <input type="email" placeholder="Email" name="email" required>
+                    <input type="password" placeholder="Password" name="password" required>
+                    <input type="password" placeholder="Confirm Password" name="confirm-password" required>
+                    <button type="submit">Register</button>
+                    <p>Already have an account? <a href="#" id="show-login">Login</a></p>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const loginForm = document.getElementById('login-form');
+            const registerForm = document.getElementById('register-form');
+            
+            // Show login form by default
+            loginForm.classList.add('active');
+            
+            // Switch to register form
+            document.getElementById('show-register').addEventListener('click', (e) => {
+                e.preventDefault();
+                loginForm.classList.remove('active');
+                registerForm.classList.add('active');
+            });
+
+            // Switch to login form
+            document.getElementById('show-login').addEventListener('click', (e) => {
+                e.preventDefault();
+                registerForm.classList.remove('active');
+                loginForm.classList.add('active');
+            });
+        });
+    </script>
+</body>
+</html>
